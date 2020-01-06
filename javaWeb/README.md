@@ -24,6 +24,8 @@
 
 ### 1. ServletConfig接口
 
+封装配置信息;Servlet 容器在初始化期间为每个 Servlet 创建`ServletConfig`对象，以将信息传递给 Servlet。此对象可用于从部署描述符文件（`web.xml`）获取配置信息，例如参数名称和值。
+
 初始化servlet时创建**唯一**ServletConfig对象，通过Servlet的Init方法传递到Servlet对象中
 
    - getInitParameter(String param) :根据给定的初始化参数名称，返回参数值，若参数不存在则返回null 
@@ -103,6 +105,8 @@ Servlet上下文代表当前的servlet的运行环境，是servlet与servlet容�
 
 ### HttpServletResponse继承接口.
 
+封装响应的信息;
+
 - 设置响应状态
 
   - **状态码**
@@ -155,7 +159,11 @@ Servlet上下文代表当前的servlet的运行环境，是servlet与servlet容�
 
 ### 文件表单的属性multipart/form-data
 
-
+| 值                                | 描述                                                         |
+| --------------------------------- | ------------------------------------------------------------ |
+| application/x-www-form-urlencoded | 在发送前编码所有字符（默认）                                 |
+| multipart/form-data               | 不对字符编码。 在使用包含文件上传控件的表单时，必须使用该值。 |
+| text/plain                        | 空格转换为 "+" 加号，但不对特殊字符编码。                    |
 
 ###  Form content types
 
@@ -230,7 +238,7 @@ cookie
 
 ### “jsessionid”
 
-大部分session机制都使用会话cookie来保存session id，而关闭浏览器后这个session id就消失了，再次连接服务器时也就无法找到原来的session。如果服务器设置的cookie被保存到硬盘上，或者使用某种手段改写浏览器发出的HTTP请求头，把原来的session id发送给服务器，则再次打开浏览器仍然能够找到原来的session。
+用来标识一个session对象,大部分session机制都使用会话cookie来保存session id，而关闭浏览器后这个session id就消失了，再次连接服务器时也就无法找到原来的session。如果服务器设置的cookie被保存到硬盘上，或者使用某种手段改写浏览器发出的HTTP请求头，把原来的session id发送给服务器，则再次打开浏览器仍然能够找到原来的session。
 
 ### JSP有?种类型的元素
 
@@ -284,11 +292,13 @@ JavaBean可分为**两种**：一种是**有用户界面**（UI，User Interface
 
 ### EL（Expression Language，表达式语言）
 
+EL（Expression Language） 是为了使JSP写起来更加简单。表达式语言的灵感来自于 ECMAScript 和 XPath 表达式语言，它提供了在 JSP 中简化表达式的方法，让Jsp的代码更加简化。
+
 **简化操作**
 
 Tomcat7开始，EL不仅支持属性访问，还支持使用方法
 
-![](/home/zegu/复习/javaWeb/source/El.png)
+<img src="/home/zegu/复习/javaWeb/source/El.png" style="zoom:200%;" />
 
 ### JSTL函数库用于循环遍历标签
 
@@ -462,9 +472,27 @@ server.xml 主要配置文件，可修改启动端口，设置网站根目录，
 
 是一个 Serlvet. 是 Servlet 接口和 ServletConfig 接口的实现类. 但是一个抽象类. 其中的 service 方法为抽象方法 
 
-### HttpServlet的处理请求方法编写
+### HttpServlet的处理请求方法的编写
+
+```java
+@WebServlet("/Servlet1")
+public class Servlet1{
+    protected void doGet(HttpServeltRequest req, HttpServletResponse resp){
+        ...
+    }
+    protected void doPost(HttpServeltRequest req,HttpServletResponse resp){
+        ...
+    }
+}
+```
 
 
+
+### HttpSer1、PHP 即Hypertext Preprocessor（超文本预处理器），它是当今Internet上最为火热的脚本语言，其语法借鉴了C、Java、PERL等语言，但只需要很少的编程知识你就能使用PHP建立一个真正交互的Web站点。
+
+它与HTML语言具有非常好的兼容性，使用者可以直接在脚本代码中加入HTML标签，或者在HTML标签中加入脚本代码从而更好地实现页面控制。PHP提供了标准的数据库接口，数据库连接方便，兼容性强；扩展性强；可以进行面向对象编程。 [1] vlet的处理请求方法编写
+
+response.sendRedirect(path);
 
 ### 请求转发
 
@@ -473,6 +501,15 @@ server.xml 主要配置文件，可修改启动端口，设置网站根目录，
    请求转发是指将请求再转发到另一资源（一般为JSP或Servlet）。此过程依然在**同一个请求范围内**，转发后浏览器地址栏内容不变
 
 ​    请求转发使用RequestDispatcher接口中的forward()方法来实现，该方法可以把请求转发到另外一个资源，并让该资源对浏览器的请求进行响应
+
+```java
+RequestDispatcher rd=request.getRequestDispatcher(path);
+rd.forward(request,response);
+或
+req.getRequestDispather(path).forward(req,resp);
+```
+
+
 
 RequestDispatcher rd = request.getRequestDispatcher(path);
 
@@ -584,11 +621,74 @@ resp.sendRedirect(request.getContextPath() + "/not_permit.html");
 
 ### servlet登录
 
-
+```java
+class Servlet1 extends HttpServlet {
+    protected  void doget(HttpServletRequest req,HttpServletResponse resp){
+        resq.setContentType("txt/html;utf-8");
+        req.setCharsetEncoding("utf-8");
+        
+        String user=req.getParemter("username");
+        String pass=req.getParemter("pwd");
+        if(user.equls("zegu") && pass.equls("123456")){
+            HttpSession sessin=req.getSession();
+            session.setAttribute(user,new User(user,pass));
+            Cookie cookie=new Cooike("JSESSIONID",session.getID());
+            cookie.setMaxAge(10*24*60*60);
+            resp.addCookie(cookie);
+            resp.sendRedirect("seccess.jsp");
+        }else{
+            String message="账户或者密码错误";
+            page="index.jsp";
+            req.setAttribute("message",message);
+            req.getRequestDispatcher(page),forward(req,resp);
+        }
+    }
+    protected void doPost(HttpServletRequest req,HttpServletResponse resp){
+        doGet(req,resp);
+    }
+}
+```
 
 
 
 ### jdbc代码
+
+数据库编程六步：
+    1.加载驱动程序
+        Class.forName(DriverName);
+    2.连接数据库
+        Connection conn=DriverManager.getConnection();
+    3.操作数据库
+        a.获取语句对象
+            Statement stmt=conn.creatStatement();
+        b.执行SQL语句
+            stmt.execute(SQL语句);
+    4.关闭连接
+        conn.close();
+        stmt.close();
+
+```java
+Class.forName(DriverName);
+Connection conn =DriverManager.getConnection(uri,user,pass);
+Statement stmt=null;
+//普通方式
+stmt=conn.creatStatement();//抛出SQLEcseption
+String sql="select * from user;";
+ResultSet rs=stmt.executeQuery(sql);//抛出SQLEcseption
+String sql2="update ss='房间打开' from user where id ='ksk';"
+stmt.execute(sql2);//抛出SQLEcseption
+//预处理
+String sql3="select * from user where id=?"
+stmt=conn.prepareStatement(sql3);//抛出SQLEcseption
+stmt.setString(1,"zegu");
+stmt.executeQuery();//抛出SQLEcseption
+
+String sql4="update l='硕大的' from user where id=?;";
+stmt=conn.prepareStatement(sql4);   //抛出SQLEcseption
+stmt.execute();//抛出SQLEcseption
+```
+
+
 
 
 
@@ -596,14 +696,39 @@ resp.sendRedirect(request.getContextPath() + "/not_permit.html");
 
 ### JSP执行原理
 
+[JSP](https://link.jianshu.com?t=http://baike.baidu.com/link?url=T3ZlOd2LmMOQAJN7dVHAQ3gcOSmdxIBLna2T2KWZeswADb5wbiZePc5Uvi0Fuyc_pZX60CDP7R-5TKeFoXPHKK) 全名为Java Server Pages，其根本是一个简化的[Servlet](https://link.jianshu.com?t=http://baike.baidu.com/item/Servlet)。一种[动态网页](https://link.jianshu.com?t=http://baike.baidu.com/item/动态网页)技术标准。它实现了Html语法中的java扩展（以 <% %>形式）。JSP与Servlet一样，是在服务器端执行的。11
 
+```mermaid
+graph TB
+A("实例化")-.->B("调用init()方法,初始化")
+B-.->C("调用service()方法")
+C-.->D("调用doxxx()处理请求")
+D-.->|"response"|E(("browser"))
+E-.->|"request"|F("servlet容器")
+F-.->G{"servlet已存在"}
+G-.->H(("否"))
+H-.->A
+G-.->I(("是"))
+I-.->C
+style A fill:red;
+style G fill:#ccc;
+style H fill:red;
+```
+
+当客户端浏览器(browser)向服务器(servlet)请求一个 Servlet 时，服务器收到该请求后，首先到容器中检索与请求匹配的 Servlet 实例是否已经存在。
+
+--若不存在，则 Servlet 容器负责**加载并实例化**出该类 Servlet的一个实例对象，接着容器框架负责调用该实例的 **init()** 方法来对实例做一些初始化工作，然后Servlet 容器运行该实例的 **service()** 方法。
+
+--若 Servlet 实例已经存在，则容器框架直接调用该实例的 service() 方法。
+
+service() 方法在运行时，自动派遣运行与用户请求相对应的 **doXX()** 方法来响应用户发起的请求。
 
 ### 会话跟踪技术
 
  - URL重写
    - URL重写的技术就是在URL结尾添加一个附加数据以标识该会话,把会话ID通过URL的信息传递过去，以便在服务器端进行识别不同的用户 。
  - 隐藏表单域
-   - 将会话ID添加到HTML表单元素中提交到服务器,此表单元素并不在客户端显示 。
+   - 将会话ID添加到HTML表单元素中提交到服务器,此表单元素并不在客户端显示 。1
  - Cookie
    - 客户端可以采用两种方式来保存这个Cookie对象，一种方式是保存在客户端内存中，称为临时Cookie，浏览器关闭后 这个Cookie对象将消失。另外一种方式是保存在 客户机的磁盘上，称为永久Cookie。以后客户端只要访问该网站，就会将这个Cookie再次发送到服务器上，前提是 这个Cookie在有效期内。这样就实现了对客户的跟踪。
  - Session
@@ -645,6 +770,18 @@ session.getAttribute(key);
 一般浏览器都可以主动禁用cookie
 
 ### setCharactersEncoding(String charset)
+
+- request.setCharacterEncoding(“UTF-8”)的作用是设置对客户端请求和数据库取值时的编码，不指定的话使用iso-8859-1。(只解决POST乱码) 
+
+  解决GET乱码可以修改tomcat的server.xml中的 URIEncoding属性 
+  或使用 
+  `str = new String(str.getBytes("iso-8859-1"),"utf-8");`
+
+- response.setCharacterEncoding(“UTF-8”)的作用是指定服务器响应给浏览器的编码。
+
+- response.setContentType(“text/html;charset=utf-8”)的作用是指定服务器响应给浏览器的编码。同时，浏览器也是根据这个参数来对其接收到的数据进行重新编码（或者称为解码）。
+
+- 对于发送数据，服务器按照response.setCharacterEncoding—contentType—pageEncoding的优先顺序，对要发送的数据进行编码。
 
 ### HttpSession对象什么时候创建
 
@@ -704,7 +841,7 @@ JavaBean可分为**两种**：一种是**有用户界面**（UI，User Interface
 
 ### 过滤器是实现了哪个接口
 
-### :Filter
+Filter
 
 ### POST请求参数的乱码问题
 
@@ -746,32 +883,70 @@ JavaBean可分为**两种**：一种是**有用户界面**（UI，User Interface
 
 ### JDBC获取数据库连接的方法
 
+```java 
+Class.forName(DriverName);
 
+Connection conn=DriverManarger().getConnection(uri,user,pass);
+
+Statement stmt=conn.createStatement();
+
+stmt.execute("update l='sd' from user where id='打发打发'");
+```
 
 ### JDBC执行预编译执行命令完成修改方法
 
+```java
+Class.forName(DriverName);
 
+Connection conn=DriverManarger().getConnection(uri,user,pass);
+
+String sql="...";
+
+Statement stmt =conn.prepareStatement(sql);
+stmt.setString(1,"...");
+stmt.execute();
+```
 
 ### request.getCookies()返回对象类型
+
+```java
+Cookie[] cookies=request.getCookies();
+getName();
+getValue();
+```
 
 
 
 ### 会话影藏表单域的类型是
 
-
+```html
+<input type="hidden" name="..." value="...">
+```
 
 ### 上传功能可以使用哪个jar
 
-
+common-fileUpload.jar
 
 ### 重定向方法
+
+resp.sendRedirect(path);
+
+response.sendRedirect(path);
 
 ### 创建Servlet在web.xml生成的映射地址 
 
 ```xml
-<serclet></serclet>
-<servlet-mapping></servlet-mapping>
+<serclet>
+	<servlet-name></servlet-name>
+    <servlet-class></servlet-class>
+</serclet>
+<servlet-mapping>
+	<servlet-name></servlet-name>
+    <url-pattern></url-pattern>
+</servlet-mapping>
 ```
+
+<img src="/home/zegu/复习/javaWeb/source/webXML配置servlet.png" style="zoom:200%;" />
 
 ### jsp中的表达方式
 
@@ -781,7 +956,7 @@ JavaBean可分为**两种**：一种是**有用户界面**（UI，User Interface
 
 ### JSP中EL表达式获取User对象的age属性的值
 
-
+{user.age}
 
 ### MVC模式结构的三个组成部分
 
@@ -816,6 +991,29 @@ Model(模型层) 、View(视图层) 和 Controller(控制层) 。
 
 终止服务
 
+```mermaid
+graph TB
+A("实例化")-.->B("调用init()方法,初始化")
+B-.->C("调用service()方法")
+C-.->D("调用doxxx()处理请求")
+D-.->|"response"|E(("browser"))
+E-.->|"request"|F("servlet容器")
+F-.->G{"servlet已存在"}
+G-.->H(("否"))
+H-.->A
+G-.->I(("是"))
+I-.->C
+J("终止服务")
+style A fill:red;
+style G fill:#ccc;
+style H fill:red;
+style B fill:yellow;
+style C fill:yellow;
+style D fill:Green;
+```
+
+
+
 ### request请求对象获取页面数据的方法有4个
 
 
@@ -824,5 +1022,34 @@ Model(模型层) 、View(视图层) 和 Controller(控制层) 。
 
 
 
+```jsp
+//示例 : 循环打印 note
+<c:forEach items="${notes}" varStatus="i" var="item">
+				<div class="note_form" style="color: #000;margin-bottom: 15px">
+					<br>
+					<div style="float: left;width: 90%;margin-left: 10%;">
+						<a href="${pageContext.request.contextPath}/servlet/Detail?user=${user.userName}&noteId=${item.noteId}"
+						   style="color: #0366d6;margin-bottom:20px;margin-top: 30px;font-size: 15px">${item.title}</a>
+					</div>
+					<div style="float: left;width: 90%;min-height: 40px;margin-top: 20px;margin-left:10%;font-size: 13px">
+						<font style="color:darkgray;">
+								${item.description}
+						</font>
+					</div>
+					<div style="float: left;width: 100%;font-size: 13px;margin-left:10%;">
+						<font style="color:green;">
+								${item.classification}
+						</font>
+						<a href="${pageContext.request.contextPath}/servlet/Download?noteId=${item.noteId}&user=${user.userName}" style="display: inline;color:blue;float:right;margin-right:14%;border-bottom: 1px solid blue;">download</a>
+					</div>
+				</div>
+</c:forEach>
+```
 
 
+
+ 题目:JSP文件在第一次运行的时候被JSP引擎编译为Scrvlet文件
+
+当访问一个Servlet时，以下Servlet中的哪个方法先被执行？init()
+
+设置session的有效时间（也叫超时时间）的方法是( A )。     A. setMaxinactivelnterval(int interval)
