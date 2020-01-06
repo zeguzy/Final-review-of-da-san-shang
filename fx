@@ -14,8 +14,8 @@ then
     exit
 else
     echo ".....切换到$1复习文件夹"
-    pwd
     cd  "复习/$1"
+    pwd
     sleep 1
     typora "README.md"&
     exit

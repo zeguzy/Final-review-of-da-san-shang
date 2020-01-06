@@ -498,7 +498,7 @@ response.sendRedirect(path);
 
 请求转发 
 
-   请求转发是指将请求再转发到另一资源（一般为JSP或Servlet）。此过程依然在**同一个请求范围内**，转发后浏览器地址栏内容不变
+   请求转发是指将请求再转发到另一资源（一般为JSP或Servlet）。此过程依然在**同一个请求范围内**，转发后浏览器地址栏内容不变  
 
 ​    请求转发使用RequestDispatcher接口中的forward()方法来实现，该方法可以把请求转发到另外一个资源，并让该资源对浏览器的请求进行响应
 
@@ -615,7 +615,13 @@ resp.sendRedirect(request.getContextPath() + "/not_permit.html");
 
 ### request请求对象获取页面数据的方法有4个
 
+​	getParameter()
 
+getParameterName()
+
+getParameterMap()
+
+getParameterValues()
 
 
 
@@ -969,7 +975,7 @@ Model(模型层) 、View(视图层) 和 Controller(控制层) 。
  - 隐藏表单域
    - 将会话ID添加到HTML表单元素中提交到服务器,此表单元素并不在客户端显示 。
  - Cookie
-   - 客户端可以采用两种方式来保存这个Cookie对象，一种方式是保存在客户端内存中，称为临时Cookie，浏览器关闭后 这个Cookie对象将消失。另外一种方式是保存在 客户机的磁盘上，称为永久Cookie。以后客户端只要访问该网站，就会将这个Cookie再次发送到服务器上，前提是 这个Cookie在有效期内。这样就实现了对客户的跟踪。
+   - 客户端可以采用两种方式来保存这个Cookie对象，一种方式是保存在客户端内存中，称为临时Cookie，浏览器关闭后 这个Cookie对象将消失。另外一种方式是保存在 客户机的磁盘上，称为永久Cookie。以后客户端只要访问该网站，就会将这个Cookie再次发送到服务器上，前提是 这个Cookie在有效期内。这样就实现了=对客户的跟踪。
  - Session
    - 每一个用户都有一个不同的session，各个用户之间是不能共享的，是每个用户所独享的，在session中可以存放信息。在服务器端会创建一个session对象，产生一个sessionID来标识这个session对象，然后将这个sessionID放入到Cookie中发送到客户端，下一次访问时，sessionID会发送到服务器，在服务器端进行识别不同的用户。Session是依赖Cookie的，如果Cookie被禁用，那么session也将失效。因为Session是用Session ID来确定当前对话所对应的服务器Session，而Session ID是通过Cookie来传递的，禁用Cookie相当于失去了Session ID，也就得不到Session了。此时可以考虑URL重写和表单隐藏域。
 
@@ -1002,6 +1008,7 @@ F-.->G{"servlet已存在"}
 G-.->H(("否"))
 H-.->A
 G-.->I(("是"))
+
 I-.->C
 J("终止服务")
 style A fill:red;
@@ -1024,11 +1031,9 @@ style D fill:Green;
 
 ```jsp
 //示例 : 循环打印 note
-<c:forEach items="${notes}" varStatus="i" var="item">
-				<div class="note_form" style="color: #000;margin-bottom: 15px">
-					<br>
-					<div style="float: left;width: 90%;margin-left: 10%;">
-						<a href="${pageContext.request.contextPath}/servlet/Detail?user=${user.userName}&noteId=${item.noteId}"
+
+
+
 						   style="color: #0366d6;margin-bottom:20px;margin-top: 30px;font-size: 15px">${item.title}</a>
 					</div>
 					<div style="float: left;width: 90%;min-height: 40px;margin-top: 20px;margin-left:10%;font-size: 13px">
